@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./split-bill-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - SERVER_PORT=:8080
+      - SERVER_MODE=debug
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DATABASE=splitbill
+      - REDIS_ADDR=redis:6379
+    volumes:
+      - ./split-bill-backend/config.yaml:/app/config.yaml
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongodb:27017
+      - ME_CONFIG_BASICAUTH=false
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

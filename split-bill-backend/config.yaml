@@ -1,0 +1,20 @@
+server:
+  port: ":8080"
+  mode: "debug"  # debug, release, test
+
+mongodb:
+  uri: "mongodb://localhost:27017"
+  database: "splitbill"
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+
+firebase:
+  credentials_file: ""  # Leave empty for development mode (no auth verification)
+
+# Google Cloud Vision API for OCR (Phase 2)
+google:
+  vision_credentials: ""  # Path to Google Cloud credentials JSON file
+  vision_api_key: ""      # Or use API key (leave both empty for demo/mock mode)

@@ -1,0 +1,41 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+split-bill-server
+
+# Test binary
+*.test
+
+# Output
+*.out
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env.local
+
+# Firebase credentials
+firebase-credentials.json
+
+# Vendor (if not committing)
+# vendor/
+
+# Node modules (for frontend)
+node_modules/
+
+# React Native
+split-bill-mobile/android/app/build/
+split-bill-mobile/ios/build/
+split-bill-mobile/ios/Pods/
