@@ -20,6 +20,8 @@ import BalancesScreen from '../screens/settlement/BalancesScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import ScanReceiptScreen from '../screens/ocr/ScanReceiptScreen';
 import ReviewOCRScreen from '../screens/ocr/ReviewOCRScreen';
+import PaymentScreen from '../screens/payment/PaymentScreen';
+import ActivityScreen from '../screens/activity/ActivityScreen';
 
 // Types
 export type RootStackParamList = {
@@ -32,6 +34,14 @@ export type RootStackParamList = {
   Balances: {groupId: string; groupName: string};
   ScanReceipt: {groupId: string; groupName: string};
   ReviewOCR: {ocrResult: OCRResult; groupId: string; groupName: string};
+  Payment: {
+    toUserId: string;
+    toUserName: string;
+    amount: number;
+    groupId: string;
+    groupName: string;
+  };
+  Activity: {groupId?: string; groupName?: string};
 };
 
 export type MainTabParamList = {
@@ -135,6 +145,20 @@ export default function AppNavigator() {
               name="ReviewOCR"
               component={ReviewOCRScreen}
               options={{title: '✅ Xác Nhận Hóa Đơn'}}
+            />
+            <Stack.Screen
+              name="Payment"
+              component={PaymentScreen}
+              options={{title: '💰 Thanh Toán'}}
+            />
+            <Stack.Screen
+              name="Activity"
+              component={ActivityScreen}
+              options={({route}) => ({
+                title: route.params.groupName
+                  ? `📋 ${route.params.groupName}`
+                  : '📋 Hoạt Động',
+              })}
             />
           </>
         )}

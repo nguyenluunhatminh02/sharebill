@@ -15,6 +15,13 @@ import {
   ScanReceiptBase64Request,
   ConfirmOCRRequest,
   ImageUploadResponse,
+  Activity,
+  PaymentDeeplinkRequest,
+  PaymentDeeplinkResponse,
+  VietQRRequest,
+  VietQRResponse,
+  BankInfo,
+  UserPaymentInfo,
 } from '../types';
 
 // ===== Auth API =====
@@ -118,4 +125,32 @@ export const uploadAPI = {
       image,
       file_name: fileName,
     }),
+};
+
+// ===== Payment API (Phase 4) =====
+export const paymentAPI = {
+  generateDeeplink: (data: PaymentDeeplinkRequest) =>
+    api.post<APIResponse<PaymentDeeplinkResponse>>('/payment/deeplink', data),
+
+  generateVietQR: (data: VietQRRequest) =>
+    api.post<APIResponse<VietQRResponse>>('/payment/vietqr', data),
+
+  getUserPaymentInfo: (userId: string) =>
+    api.get<APIResponse<UserPaymentInfo>>(`/payment/user/${userId}`),
+
+  getSupportedBanks: () =>
+    api.get<APIResponse<BankInfo[]>>('/payment/banks'),
+};
+
+// ===== Activity API (Phase 4) =====
+export const activityAPI = {
+  getGroupActivities: (groupId: string, limit?: number) =>
+    api.get<APIResponse<Activity[]>>(
+      `/groups/${groupId}/activities${limit ? `?limit=${limit}` : ''}`,
+    ),
+
+  getMyActivities: (limit?: number) =>
+    api.get<APIResponse<Activity[]>>(
+      `/activities/me${limit ? `?limit=${limit}` : ''}`,
+    ),
 };

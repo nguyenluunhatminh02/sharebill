@@ -220,3 +220,88 @@ export interface CreateTransactionRequest {
   payment_method?: string;
   note?: string;
 }
+
+// ===== Payment Types (Phase 4) =====
+export type ActivityType =
+  | 'bill_created'
+  | 'bill_deleted'
+  | 'bill_updated'
+  | 'member_joined'
+  | 'member_left'
+  | 'payment_sent'
+  | 'payment_confirmed'
+  | 'payment_rejected'
+  | 'group_created'
+  | 'settlement_created';
+
+export interface Activity {
+  id: string;
+  group_id: string;
+  group_name?: string;
+  user_id: string;
+  user_name: string;
+  user_avatar?: string;
+  type: ActivityType;
+  title: string;
+  detail: string;
+  amount?: number;
+  ref_id?: string;
+  created_at: string;
+  time_ago: string;
+}
+
+export interface BankingDeeplink {
+  app_name: string;
+  scheme: string;
+  color: string;
+  icon_name: string;
+}
+
+export interface PaymentDeeplinkRequest {
+  bank_code: string;
+  account_number: string;
+  account_name?: string;
+  amount: number;
+  note?: string;
+}
+
+export interface PaymentDeeplinkResponse {
+  amount: number;
+  note: string;
+  deeplinks: BankingDeeplink[];
+  vietqr_url: string;
+}
+
+export interface VietQRRequest {
+  bank_id: string;
+  account_no: string;
+  account_name?: string;
+  amount: number;
+  description?: string;
+  template?: string;
+}
+
+export interface VietQRResponse {
+  qr_url: string;
+  bank_id: string;
+  account_number: string;
+  account_name: string;
+  amount: number;
+  description: string;
+}
+
+export interface BankInfo {
+  id: string;
+  name: string;
+  code: string;
+  short_name: string;
+  logo: string;
+  color: string;
+}
+
+export interface UserPaymentInfo {
+  user_id: string;
+  display_name: string;
+  bank_accounts: BankAccount[];
+  preferred_payment: string;
+}

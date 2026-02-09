@@ -101,48 +101,13 @@ const BalancesScreen: React.FC<BalancesScreenProps> = ({
   };
 
   const handlePayViaBank = (settlement: Settlement) => {
-    const bankApps = [
-      {
-        name: 'Momo',
-        scheme: `momo://transfer?amount=${settlement.amount}`,
-        color: '#A6327F',
-        icon: 'wallet',
-      },
-      {
-        name: 'ZaloPay',
-        scheme: `zalopay://transfer?amount=${settlement.amount}`,
-        color: '#008FE5',
-        icon: 'wallet',
-      },
-      {
-        name: 'VNPay',
-        scheme: `vnpay://transfer?amount=${settlement.amount}`,
-        color: '#1A3C7B',
-        icon: 'credit-card',
-      },
-    ];
-
-    Alert.alert('Pay via Banking App', 'Choose a payment method:', [
-      ...bankApps.map(app => ({
-        text: app.name,
-        onPress: async () => {
-          try {
-            const canOpen = await Linking.canOpenURL(app.scheme);
-            if (canOpen) {
-              await Linking.openURL(app.scheme);
-            } else {
-              Alert.alert(
-                'Not Available',
-                `${app.name} is not installed on your device.`,
-              );
-            }
-          } catch (error) {
-            Alert.alert('Error', `Could not open ${app.name}`);
-          }
-        },
-      })),
-      {text: 'Cancel', style: 'cancel', onPress: undefined},
-    ]);
+    navigation.navigate('Payment', {
+      toUserId: settlement.to_user_id,
+      toUserName: settlement.to_user_name || 'Unknown',
+      amount: settlement.amount,
+      groupId,
+      groupName,
+    });
   };
 
   const getBalanceColor = (amount: number): string => {

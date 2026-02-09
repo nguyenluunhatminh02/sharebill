@@ -62,4 +62,5 @@ const (
 	CollectionBills        = "bills"
 	CollectionTransactions = "transactions"
 	CollectionOCRResults   = "ocr_results"
+	CollectionActivities   = "activities"
 )

@@ -53,6 +53,7 @@ func main() {
 	billRepo := repository.NewBillRepository(mongoDB)
 	transactionRepo := repository.NewTransactionRepository(mongoDB)
 	ocrRepo := repository.NewOCRRepository(mongoDB)
+	activityRepo := repository.NewActivityRepository(mongoDB)
 
 	// Initialize services
 	authService := services.NewAuthService(userRepo)
@@ -61,6 +62,7 @@ func main() {
 	debtService := services.NewDebtService(billRepo, transactionRepo, userRepo)
 	ocrService := services.NewOCRService(ocrRepo, billRepo, groupRepo, visionClient, logger)
 	notifService := services.NewNotificationService(userRepo, logger)
+	activityService := services.NewActivityService(activityRepo, userRepo, groupRepo, logger)
 
 	// Log notification service status
 	_ = notifService // Will be used when FCM is configured
@@ -71,6 +73,8 @@ func main() {
 	billHandler := handlers.NewBillHandler(billService, debtService)
 	transactionHandler := handlers.NewTransactionHandler(transactionRepo, userRepo)
 	ocrHandler := handlers.NewOCRHandler(ocrService)
+	paymentHandler := handlers.NewPaymentHandler(userRepo)
+	activityHandler := handlers.NewActivityHandler(activityService, userRepo)
 
 	// Image upload handler
 	uploadDir := filepath.Join(".", "uploads")
@@ -95,7 +99,7 @@ func main() {
 		c.JSON(200, gin.H{
 			"status":  "ok",
 			"service": "split-bill-api",
-			"version": "2.0.0",
+			"version": "3.0.0",
 		})
 	})
 
@@ -131,6 +135,9 @@ func main() {
 		// Balances and settlements
 		groups.GET("/:id/balances", billHandler.GetGroupBalances)
 		groups.GET("/:id/settlements", billHandler.GetSettlements)
+
+		// Group activities (Phase 4)
+		groups.GET("/:id/activities", activityHandler.GetGroupActivities)
 	}
 
 	// Bill routes (direct access)
@@ -176,6 +183,23 @@ func main() {
 		upload.POST("/image-base64", imageHandler.UploadBase64Image)
 	}
 
+	// Payment routes (Phase 4)
+	payment := v1.Group("/payment")
+	payment.Use(authMiddleware.Authenticate())
+	{
+		payment.POST("/deeplink", paymentHandler.GenerateDeeplink)
+		payment.POST("/vietqr", paymentHandler.GenerateVietQR)
+		payment.GET("/user/:userId", paymentHandler.GetUserPaymentInfo)
+		payment.GET("/banks", paymentHandler.GetSupportedBanks)
+	}
+
+	// Activity routes (Phase 4)
+	activities := v1.Group("/activities")
+	activities.Use(authMiddleware.Authenticate())
+	{
+		activities.GET("/me", activityHandler.GetUserActivities)
+	}
+
 	// Graceful shutdown
 	go func() {
 		if err := router.Run(cfg.Server.Port); err != nil {
@@ -186,6 +210,8 @@ func main() {
 	log.Printf("🚀 Split Bill API server starting on %s", cfg.Server.Port)
 	log.Printf("📷 OCR endpoint: POST /api/v1/ocr/scan")
 	log.Printf("🖼️  Upload endpoint: POST /api/v1/upload/image")
+	log.Printf("💰 Payment endpoint: POST /api/v1/payment/deeplink")
+	log.Printf("📋 Activity endpoint: GET /api/v1/activities/me")
 
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)

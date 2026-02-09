@@ -127,6 +127,22 @@ export default function GroupDetailScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Activity Button */}
+        <View style={styles.activityRow}>
+          <TouchableOpacity
+            style={styles.activityBtn}
+            onPress={() =>
+              navigation.navigate('Activity', {
+                groupId,
+                groupName: currentGroup?.name || '',
+              })
+            }>
+            <Icon name="time" size={18} color={colors.accent} />
+            <Text style={styles.activityBtnText}>Hoạt Động</Text>
+            <Icon name="chevron-forward" size={16} color={colors.textLight} />
+          </TouchableOpacity>
+        </View>
+
         {/* Members */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Thành Viên</Text>
@@ -233,6 +249,27 @@ const styles = StyleSheet.create({
   },
   actionBtnText: {color: colors.textInverse, fontWeight: '600', fontSize: fontSize.md},
   actionBtnTextSecondary: {color: colors.primary},
+  activityRow: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  activityBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    gap: spacing.sm,
+  },
+  activityBtnText: {
+    flex: 1,
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.text,
+  },
   section: {paddingHorizontal: spacing.lg, marginBottom: spacing.lg},
   sectionTitle: {
     fontSize: fontSize.xl,
