@@ -27,8 +27,23 @@ export default function AddBillScreen() {
   const {user} = useAuthStore();
 
   const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('other');
   const [totalAmount, setTotalAmount] = useState('');
   const [splitType, setSplitType] = useState<SplitType>('equal');
+
+  const categoryList = [
+    {key: 'food', label: 'Ăn uống', icon: 'restaurant', color: '#FF6B6B'},
+    {key: 'drinks', label: 'Đồ uống', icon: 'beer', color: '#FFA502'},
+    {key: 'groceries', label: 'Tạp hóa', icon: 'cart', color: '#2ED573'},
+    {key: 'transport', label: 'Di chuyển', icon: 'car', color: '#1E90FF'},
+    {key: 'accommodation', label: 'Chỗ ở', icon: 'bed', color: '#A29BFE'},
+    {key: 'entertainment', label: 'Giải trí', icon: 'game-controller', color: '#FD79A8'},
+    {key: 'shopping', label: 'Mua sắm', icon: 'bag-handle', color: '#E17055'},
+    {key: 'utilities', label: 'Tiện ích', icon: 'flash', color: '#FDCB6E'},
+    {key: 'health', label: 'Sức khỏe', icon: 'medkit', color: '#00B894'},
+    {key: 'travel', label: 'Du lịch', icon: 'airplane', color: '#74B9FF'},
+    {key: 'other', label: 'Khác', icon: 'ellipsis-horizontal', color: '#636E72'},
+  ];
   const [items, setItems] = useState<CreateBillItemRequest[]>([]);
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
@@ -67,6 +82,7 @@ export default function AddBillScreen() {
       const memberIds = members.map((m: any) => m.user_id);
       await createBill(groupId, {
         title: title.trim(),
+        category,
         total_amount: parseFloat(totalAmount),
         currency: 'VND',
         paid_by: user?.id || '',
@@ -92,6 +108,36 @@ export default function AddBillScreen() {
           value={title}
           onChangeText={setTitle}
         />
+
+        <Text style={styles.label}>Danh mục</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoryScroll}
+          contentContainerStyle={styles.categoryContainer}>
+          {categoryList.map(cat => (
+            <TouchableOpacity
+              key={cat.key}
+              style={[
+                styles.categoryChip,
+                category === cat.key && {backgroundColor: cat.color},
+              ]}
+              onPress={() => setCategory(cat.key)}>
+              <Icon
+                name={cat.icon}
+                size={16}
+                color={category === cat.key ? '#FFF' : cat.color}
+              />
+              <Text
+                style={[
+                  styles.categoryChipText,
+                  category === cat.key && {color: '#FFF'},
+                ]}>
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         <Text style={styles.label}>Tổng tiền (VNĐ) *</Text>
         <TextInput
@@ -292,6 +338,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  categoryScroll: {
+    marginBottom: spacing.xs,
+  },
+  categoryContainer: {
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 4,
+  },
+  categoryChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+    color: colors.text,
   },
   submitBtn: {
     backgroundColor: colors.primary,

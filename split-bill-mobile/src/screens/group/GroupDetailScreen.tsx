@@ -127,7 +127,7 @@ export default function GroupDetailScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Activity Button */}
+        {/* Activity & Stats Buttons */}
         <View style={styles.activityRow}>
           <TouchableOpacity
             style={styles.activityBtn}
@@ -139,6 +139,21 @@ export default function GroupDetailScreen() {
             }>
             <Icon name="time" size={18} color={colors.accent} />
             <Text style={styles.activityBtnText}>Hoạt Động</Text>
+            <Icon name="chevron-forward" size={16} color={colors.textLight} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.activityRow}>
+          <TouchableOpacity
+            style={styles.activityBtn}
+            onPress={() =>
+              navigation.navigate('Statistics', {
+                groupId,
+                groupName: currentGroup?.name || '',
+              })
+            }>
+            <Icon name="bar-chart" size={18} color={colors.primary} />
+            <Text style={styles.activityBtnText}>Thống Kê</Text>
             <Icon name="chevron-forward" size={16} color={colors.textLight} />
           </TouchableOpacity>
         </View>

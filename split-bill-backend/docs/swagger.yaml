@@ -1,0 +1,2017 @@
+basePath: /api/v1
+definitions:
+  models.ActivityResponse:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      detail:
+        type: string
+      group_id:
+        type: string
+      group_name:
+        type: string
+      id:
+        type: string
+      ref_id:
+        type: string
+      time_ago:
+        type: string
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/models.ActivityType'
+      user_avatar:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  models.ActivityType:
+    enum:
+    - bill_created
+    - bill_deleted
+    - bill_updated
+    - member_joined
+    - member_left
+    - payment_sent
+    - payment_confirmed
+    - payment_rejected
+    - group_created
+    - settlement_created
+    type: string
+    x-enum-varnames:
+    - ActivityBillCreated
+    - ActivityBillDeleted
+    - ActivityBillUpdated
+    - ActivityMemberJoined
+    - ActivityMemberLeft
+    - ActivityPaymentSent
+    - ActivityPaymentConfirmed
+    - ActivityPaymentRejected
+    - ActivityGroupCreated
+    - ActivitySettlementCreated
+  models.AddMemberRequest:
+    properties:
+      nickname:
+        type: string
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  models.BalanceResponse:
+    properties:
+      balance:
+        description: positive = owed money, negative = owes money
+        type: number
+      display_name:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.BankAccount:
+    properties:
+      account_name:
+        type: string
+      account_number:
+        type: string
+      bank_code:
+        type: string
+    type: object
+  models.BankingDeeplink:
+    properties:
+      app_name:
+        type: string
+      color:
+        type: string
+      icon_name:
+        type: string
+      scheme:
+        type: string
+    type: object
+  models.BillItemResponse:
+    properties:
+      assigned_to:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+      total_price:
+        type: number
+      unit_price:
+        type: number
+    type: object
+  models.BillResponse:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      extra_charges:
+        $ref: '#/definitions/models.ExtraCharges'
+      group_id:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/models.BillItemResponse'
+        type: array
+      paid_by:
+        type: string
+      paid_by_name:
+        type: string
+      receipt_image_url:
+        type: string
+      split_type:
+        $ref: '#/definitions/models.SplitType'
+      splits:
+        items:
+          $ref: '#/definitions/models.BillSplitResponse'
+        type: array
+      status:
+        $ref: '#/definitions/models.BillStatus'
+      title:
+        type: string
+      total_amount:
+        type: number
+    type: object
+  models.BillSplitResponse:
+    properties:
+      amount:
+        type: number
+      display_name:
+        type: string
+      is_paid:
+        type: boolean
+      paid_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.BillStatus:
+    enum:
+    - pending
+    - settled
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - BillPending
+    - BillSettled
+    - BillCancelled
+  models.ConfirmOCRRequest:
+    properties:
+      discount:
+        type: number
+      items:
+        items:
+          $ref: '#/definitions/models.ParsedItem'
+        type: array
+      paid_by:
+        type: string
+      service_fee:
+        type: number
+      split_among:
+        description: user IDs for equal split
+        items:
+          type: string
+        type: array
+      split_type:
+        type: string
+      tax:
+        type: number
+      title:
+        type: string
+      total:
+        type: number
+    required:
+    - items
+    - paid_by
+    - split_type
+    - title
+    - total
+    type: object
+  models.CreateBillItemReq:
+    properties:
+      assigned_to:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      quantity:
+        type: integer
+      total_price:
+        type: number
+      unit_price:
+        type: number
+    required:
+    - name
+    - quantity
+    - unit_price
+    type: object
+  models.CreateBillRequest:
+    properties:
+      category:
+        type: string
+      currency:
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      extra_charges:
+        $ref: '#/definitions/models.ExtraCharges'
+      items:
+        items:
+          $ref: '#/definitions/models.CreateBillItemReq'
+        type: array
+      paid_by:
+        type: string
+      receipt_image_url:
+        type: string
+      split_among:
+        description: user IDs for equal split
+        items:
+          type: string
+        type: array
+      split_type:
+        $ref: '#/definitions/models.SplitType'
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+      total_amount:
+        type: number
+    required:
+    - currency
+    - paid_by
+    - split_type
+    - title
+    - total_amount
+    type: object
+  models.CreateGroupRequest:
+    properties:
+      avatar_url:
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+  models.CreateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      bill_id:
+        type: string
+      currency:
+        type: string
+      group_id:
+        type: string
+      note:
+        maxLength: 500
+        type: string
+      payment_method:
+        type: string
+      payment_proof_url:
+        type: string
+      to_user:
+        type: string
+    required:
+    - amount
+    - currency
+    - group_id
+    - to_user
+    type: object
+  models.ExtraCharges:
+    properties:
+      discount:
+        type: number
+      service_charge:
+        type: number
+      tax:
+        type: number
+      tip:
+        type: number
+    type: object
+  models.GroupMemberResponse:
+    properties:
+      avatar_url:
+        type: string
+      display_name:
+        type: string
+      joined_at:
+        type: string
+      nickname:
+        type: string
+      role:
+        $ref: '#/definitions/models.MemberRole'
+      user_id:
+        type: string
+    type: object
+  models.GroupResponse:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      invite_code:
+        type: string
+      is_active:
+        type: boolean
+      members:
+        items:
+          $ref: '#/definitions/models.GroupMemberResponse'
+        type: array
+      name:
+        type: string
+    type: object
+  models.JoinGroupRequest:
+    properties:
+      invite_code:
+        type: string
+    required:
+    - invite_code
+    type: object
+  models.MemberRole:
+    enum:
+    - admin
+    - member
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleMember
+  models.OCRResultResponse:
+    properties:
+      confidence_score:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      parsed_discount:
+        type: number
+      parsed_items:
+        items:
+          $ref: '#/definitions/models.ParsedItem'
+        type: array
+      parsed_service_fee:
+        type: number
+      parsed_tax:
+        type: number
+      parsed_total:
+        type: number
+      processing_time_ms:
+        type: integer
+      raw_text:
+        type: string
+      status:
+        $ref: '#/definitions/models.OCRStatus'
+    type: object
+  models.OCRStatus:
+    enum:
+    - processing
+    - completed
+    - failed
+    - confirmed
+    type: string
+    x-enum-varnames:
+    - OCRStatusProcessing
+    - OCRStatusCompleted
+    - OCRStatusFailed
+    - OCRStatusConfirmed
+  models.ParsedItem:
+    properties:
+      confidence:
+        description: 0.0 - 1.0
+        type: number
+      name:
+        type: string
+      quantity:
+        type: integer
+      total_price:
+        type: number
+      unit_price:
+        type: number
+    type: object
+  models.PaymentDeeplinkRequest:
+    properties:
+      account_name:
+        type: string
+      account_number:
+        type: string
+      amount:
+        type: number
+      bank_code:
+        type: string
+      note:
+        type: string
+    required:
+    - account_number
+    - amount
+    - bank_code
+    type: object
+  models.PaymentDeeplinkResponse:
+    properties:
+      amount:
+        type: number
+      deeplinks:
+        items:
+          $ref: '#/definitions/models.BankingDeeplink'
+        type: array
+      note:
+        type: string
+      vietqr_url:
+        type: string
+    type: object
+  models.ScanReceiptFromBase64Request:
+    properties:
+      file_name:
+        type: string
+      group_id:
+        type: string
+      image_base64:
+        type: string
+    required:
+    - group_id
+    - image_base64
+    type: object
+  models.ScanReceiptRequest:
+    properties:
+      group_id:
+        type: string
+      image_url:
+        type: string
+    required:
+    - group_id
+    - image_url
+    type: object
+  models.Settlement:
+    properties:
+      amount:
+        type: number
+      from_user_id:
+        type: string
+      from_user_name:
+        type: string
+      to_user_id:
+        type: string
+      to_user_name:
+        type: string
+    type: object
+  models.SplitType:
+    enum:
+    - equal
+    - by_item
+    - by_percentage
+    - by_amount
+    type: string
+    x-enum-varnames:
+    - SplitEqual
+    - SplitByItem
+    - SplitByPercent
+    - SplitByAmount
+  models.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      bill_id:
+        type: string
+      confirmed_at:
+        type: string
+      created_at:
+        type: string
+      currency:
+        type: string
+      from_user:
+        type: string
+      from_user_name:
+        type: string
+      group_id:
+        type: string
+      id:
+        type: string
+      note:
+        type: string
+      payment_method:
+        type: string
+      payment_proof_url:
+        type: string
+      status:
+        $ref: '#/definitions/models.TransactionStatus'
+      to_user:
+        type: string
+      to_user_name:
+        type: string
+      type:
+        $ref: '#/definitions/models.TransactionType'
+    type: object
+  models.TransactionStatus:
+    enum:
+    - pending
+    - confirmed
+    - rejected
+    type: string
+    x-enum-varnames:
+    - TransactionPending
+    - TransactionConfirmed
+    - TransactionRejected
+  models.TransactionType:
+    enum:
+    - payment
+    - settlement
+    type: string
+    x-enum-varnames:
+    - TransactionPayment
+    - TransactionSettlement
+  models.UpdateBillRequest:
+    properties:
+      category:
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      extra_charges:
+        $ref: '#/definitions/models.ExtraCharges'
+      status:
+        $ref: '#/definitions/models.BillStatus'
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+      total_amount:
+        type: number
+    type: object
+  models.UpdateGroupRequest:
+    properties:
+      avatar_url:
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    type: object
+  models.UpdateUserRequest:
+    properties:
+      avatar_url:
+        type: string
+      bank_accounts:
+        items:
+          $ref: '#/definitions/models.BankAccount'
+        type: array
+      display_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      preferred_payment:
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      bank_accounts:
+        items:
+          $ref: '#/definitions/models.BankAccount'
+        type: array
+      created_at:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: string
+      phone:
+        type: string
+      preferred_payment:
+        type: string
+    type: object
+  models.VietQRRequest:
+    properties:
+      account_name:
+        type: string
+      account_no:
+        type: string
+      amount:
+        type: number
+      bank_id:
+        type: string
+      description:
+        type: string
+      template:
+        type: string
+    required:
+    - account_no
+    - amount
+    - bank_id
+    type: object
+  utils.APIResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@splitbill.app
+    name: Split Bill Support
+  description: API server for Split Bill application - manage groups, bills, transactions,
+    OCR receipt scanning, and payments
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Split Bill API
+  version: 4.0.0
+paths:
+  /activities/me:
+    get:
+      description: Returns activities across all groups the authenticated user belongs
+        to
+      parameters:
+      - description: Max number of activities (default 30)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ActivityResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user's activities
+      tags:
+      - Activities
+  /auth/me:
+    get:
+      description: Returns the authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Auth
+  /auth/profile:
+    put:
+      consumes:
+      - application/json
+      description: Updates the authenticated user's profile (display name, avatar,
+        bank info)
+      parameters:
+      - description: Profile update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Auth
+  /auth/verify-token:
+    post:
+      consumes:
+      - application/json
+      description: Verifies Firebase ID token and returns or creates the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Verify Firebase token
+      tags:
+      - Auth
+  /bills/{id}:
+    delete:
+      description: Soft-deletes a bill (marks as deleted)
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a bill
+      tags:
+      - Bills
+    get:
+      description: Returns detailed information about a specific bill
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.BillResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get bill details
+      tags:
+      - Bills
+    put:
+      consumes:
+      - application/json
+      description: Updates bill title, amount, splits, or category
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Bill update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateBillRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.BillResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a bill
+      tags:
+      - Bills
+  /categories:
+    get:
+      description: Returns the list of all supported bill categories with labels,
+        icons, and colors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get bill categories
+      tags:
+      - Categories
+  /groups:
+    get:
+      description: Returns all groups the authenticated user is a member of
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.GroupResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List user's groups
+      tags:
+      - Groups
+    post:
+      consumes:
+      - application/json
+      description: Creates a new group with the authenticated user as creator and
+        first member
+      parameters:
+      - description: Group creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.GroupResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new group
+      tags:
+      - Groups
+  /groups/{id}:
+    delete:
+      description: Deletes a group. Only the group creator can delete.
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a group
+      tags:
+      - Groups
+    get:
+      description: Returns detailed information about a specific group including member
+        details
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.GroupResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get group details
+      tags:
+      - Groups
+    put:
+      consumes:
+      - application/json
+      description: Updates group name, description, or currency. Only the group creator
+        can update.
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Group update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.GroupResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a group
+      tags:
+      - Groups
+  /groups/{id}/activities:
+    get:
+      description: Returns the activity feed for a specific group with optional limit
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Max number of activities (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ActivityResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get group activities
+      tags:
+      - Activities
+  /groups/{id}/balances:
+    get:
+      description: Returns the balance for each member in the group (positive = owed,
+        negative = owes)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.BalanceResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get group balances
+      tags:
+      - Balances
+  /groups/{id}/bills:
+    get:
+      description: Returns all bills in a specific group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.BillResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List group bills
+      tags:
+      - Bills
+    post:
+      consumes:
+      - application/json
+      description: Creates a new bill in a group with split information
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Bill creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateBillRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.BillResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new bill
+      tags:
+      - Bills
+  /groups/{id}/export:
+    get:
+      description: Generates a text or JSON summary of a group's bills and settlements
+        for sharing
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Export format: text or json (default text)'
+        in: query
+        name: format
+        type: string
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Export group summary
+      tags:
+      - Stats
+  /groups/{id}/members:
+    post:
+      consumes:
+      - application/json
+      description: Adds a user to a group by user ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Member data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Add member to group
+      tags:
+      - Groups
+  /groups/{id}/members/{userId}:
+    delete:
+      description: Removes a user from a group. Only creator or the member themselves
+        can remove.
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID to remove
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove member from group
+      tags:
+      - Groups
+  /groups/{id}/settlements:
+    get:
+      description: Returns optimized settlement suggestions to minimize the number
+        of transactions
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Settlement'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get settlement suggestions
+      tags:
+      - Balances
+  /groups/{id}/stats:
+    get:
+      description: Returns comprehensive statistics for a group including spending,
+        categories, and trends
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get group statistics
+      tags:
+      - Stats
+  /groups/{id}/stats/categories:
+    get:
+      description: Returns category spending breakdown and monthly trends for a group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get group category statistics
+      tags:
+      - Stats
+  /groups/join:
+    post:
+      consumes:
+      - application/json
+      description: Joins a group using the group's invite code
+      parameters:
+      - description: Invite code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.JoinGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.GroupResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Join group via invite code
+      tags:
+      - Groups
+  /ocr/{id}/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Confirms parsed OCR results, optionally edits items, and creates
+        a bill from the scan
+      parameters:
+      - description: OCR Result ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Confirmed items and bill details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ConfirmOCRRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Confirm OCR scan and create bill
+      tags:
+      - OCR
+  /ocr/{id}/result:
+    get:
+      description: Retrieves a previously scanned OCR result by ID
+      parameters:
+      - description: OCR Result ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.OCRResultResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get OCR result
+      tags:
+      - OCR
+  /ocr/pending:
+    get:
+      description: Returns all pending (unconfirmed) OCR scans for the authenticated
+        user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.OCRResultResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get pending OCR scans
+      tags:
+      - OCR
+  /ocr/scan:
+    post:
+      consumes:
+      - application/json
+      description: Scans a receipt image from a URL using OCR and extracts items
+      parameters:
+      - description: Image URL and group ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ScanReceiptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.OCRResultResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Scan receipt from URL
+      tags:
+      - OCR
+  /ocr/scan-base64:
+    post:
+      consumes:
+      - application/json
+      description: Scans a receipt from a base64-encoded image using OCR and extracts
+        items
+      parameters:
+      - description: Base64 image and group ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ScanReceiptFromBase64Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.OCRResultResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Scan receipt from base64 image
+      tags:
+      - OCR
+  /payment/banks:
+    get:
+      description: Returns the list of supported Vietnamese banks with IDs, names,
+        codes, logos, and colors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get supported banks
+      tags:
+      - Payment
+  /payment/deeplink:
+    post:
+      consumes:
+      - application/json
+      description: Generates banking app deeplinks (Momo, ZaloPay, VNPay, etc.) and
+        VietQR URL for payment
+      parameters:
+      - description: Payment details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.PaymentDeeplinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PaymentDeeplinkResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate payment deeplinks
+      tags:
+      - Payment
+  /payment/user/{userId}:
+    get:
+      description: Returns payment information (bank accounts, preferred payment method)
+        for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user payment info
+      tags:
+      - Payment
+  /payment/vietqr:
+    post:
+      consumes:
+      - application/json
+      description: Generates a VietQR code image URL for bank transfer payment
+      parameters:
+      - description: QR code details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.VietQRRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate VietQR code
+      tags:
+      - Payment
+  /stats/me:
+    get:
+      description: Returns overall statistics for the authenticated user across all
+        groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user's statistics
+      tags:
+      - Stats
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new settlement transaction between two users in a group
+      parameters:
+      - description: Transaction details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.TransactionResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Record a payment transaction
+      tags:
+      - Transactions
+  /transactions/{id}/confirm:
+    put:
+      consumes:
+      - application/json
+      description: Confirms a received payment. Only the recipient can confirm.
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Confirm a transaction
+      tags:
+      - Transactions
+  /upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image file (JPEG, PNG, WebP) with max 10MB size limit
+      parameters:
+      - description: Image file to upload
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload image via multipart form
+      tags:
+      - Upload
+  /upload/image-base64:
+    post:
+      consumes:
+      - application/json
+      description: Uploads a base64-encoded image (supports data URI format) with
+        max 10MB size limit
+      parameters:
+      - description: Base64 image data
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload image via base64
+      tags:
+      - Upload
+  /users/me/debts:
+    get:
+      description: Returns all transactions (debts) for the authenticated user across
+        all groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.TransactionResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user's debts
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: 'Firebase Bearer token. Format: "Bearer {token}"'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

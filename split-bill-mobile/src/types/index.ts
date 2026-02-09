@@ -72,6 +72,7 @@ export interface Bill {
   group_id: string;
   title: string;
   description: string;
+  category: string;
   receipt_image_url: string;
   total_amount: number;
   currency: string;
@@ -139,6 +140,7 @@ export interface CreateGroupRequest {
 export interface CreateBillRequest {
   title: string;
   description?: string;
+  category?: string;
   total_amount: number;
   currency: string;
   paid_by: string;
@@ -304,4 +306,82 @@ export interface UserPaymentInfo {
   display_name: string;
   bank_accounts: BankAccount[];
   preferred_payment: string;
+}
+
+// ===== Statistics Types (Phase 5) =====
+
+export interface BillSummary {
+  id: string;
+  title: string;
+  amount: number;
+  category: string;
+  paid_by_name: string;
+  created_at: string;
+}
+
+export interface MemberSpendStats {
+  user_id: string;
+  display_name: string;
+  avatar_url: string;
+  total_paid: number;
+  total_owed: number;
+  net_balance: number;
+  bill_count: number;
+  percentage: number;
+}
+
+export interface CategoryStat {
+  category: string;
+  total: number;
+  count: number;
+  percentage: number;
+  icon: string;
+  color: string;
+}
+
+export interface MonthlySpend {
+  month: string;
+  year: number;
+  month_num: number;
+  total: number;
+  bill_count: number;
+}
+
+export interface GroupSpendInfo {
+  group_id: string;
+  group_name: string;
+  total: number;
+  bill_count: number;
+}
+
+export interface GroupStats {
+  group_id: string;
+  group_name: string;
+  total_spent: number;
+  total_bills: number;
+  total_members: number;
+  average_bill: number;
+  largest_bill?: BillSummary;
+  smallest_bill?: BillSummary;
+  member_stats: MemberSpendStats[];
+  category_stats: CategoryStat[];
+  monthly_trend: MonthlySpend[];
+  recent_bills: BillSummary[];
+}
+
+export interface UserOverallStats {
+  total_groups: number;
+  total_spent: number;
+  total_owed: number;
+  total_bills: number;
+  top_groups: GroupSpendInfo[];
+  category_stats: CategoryStat[];
+  monthly_trend: MonthlySpend[];
+}
+
+export interface CategoryInfo {
+  key: string;
+  label: string;
+  icon: string;
+  color: string;
 }

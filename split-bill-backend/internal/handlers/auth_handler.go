@@ -17,8 +17,17 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// VerifyToken verifies Firebase token and returns/creates user
-// POST /api/v1/auth/verify-token
+// VerifyToken godoc
+// @Summary      Verify Firebase token
+// @Description  Verifies Firebase ID token and returns or creates the user
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse{data=models.UserResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /auth/verify-token [post]
 func (h *AuthHandler) VerifyToken(c *gin.Context) {
 	firebaseUID, _ := c.Get("firebase_uid")
 	phone, _ := c.Get("user_phone")
@@ -38,8 +47,16 @@ func (h *AuthHandler) VerifyToken(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "User verified", user.ToResponse())
 }
 
-// GetMe returns the current user's profile
-// GET /api/v1/auth/me
+// GetMe godoc
+// @Summary      Get current user profile
+// @Description  Returns the authenticated user's profile information
+// @Tags         Auth
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse{data=models.UserResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /auth/me [get]
 func (h *AuthHandler) GetMe(c *gin.Context) {
 	firebaseUID, _ := c.Get("firebase_uid")
 	uid := firebaseUID.(string)
@@ -53,8 +70,19 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "User profile", user.ToResponse())
 }
 
-// UpdateProfile updates the current user's profile
-// PUT /api/v1/auth/profile
+// UpdateProfile godoc
+// @Summary      Update user profile
+// @Description  Updates the authenticated user's profile (display name, avatar, bank info)
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.UpdateUserRequest  true  "Profile update data"
+// @Success      200      {object}  utils.APIResponse{data=models.UserResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /auth/profile [put]
 func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	var req models.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

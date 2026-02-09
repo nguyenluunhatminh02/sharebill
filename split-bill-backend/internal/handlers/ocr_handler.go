@@ -19,7 +19,19 @@ func NewOCRHandler(ocrService *services.OCRService) *OCRHandler {
 	return &OCRHandler{ocrService: ocrService}
 }
 
-// ScanReceipt handles receipt scanning via image URL
+// ScanReceipt godoc
+// @Summary      Scan receipt from URL
+// @Description  Scans a receipt image from a URL using OCR and extracts items
+// @Tags         OCR
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.ScanReceiptRequest  true  "Image URL and group ID"
+// @Success      200      {object}  utils.APIResponse{data=models.OCRResultResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /ocr/scan [post]
 func (h *OCRHandler) ScanReceipt(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -54,7 +66,19 @@ func (h *OCRHandler) ScanReceipt(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Receipt scanned successfully", toOCRResponse(result))
 }
 
-// ScanReceiptBase64 handles receipt scanning via base64-encoded image
+// ScanReceiptBase64 godoc
+// @Summary      Scan receipt from base64 image
+// @Description  Scans a receipt from a base64-encoded image using OCR and extracts items
+// @Tags         OCR
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.ScanReceiptFromBase64Request  true  "Base64 image and group ID"
+// @Success      200      {object}  utils.APIResponse{data=models.OCRResultResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /ocr/scan-base64 [post]
 func (h *OCRHandler) ScanReceiptBase64(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -89,7 +113,17 @@ func (h *OCRHandler) ScanReceiptBase64(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Receipt scanned successfully", toOCRResponse(result))
 }
 
-// GetOCRResult retrieves an OCR scan result
+// GetOCRResult godoc
+// @Summary      Get OCR result
+// @Description  Retrieves a previously scanned OCR result by ID
+// @Tags         OCR
+// @Produce      json
+// @Param        id   path      string  true  "OCR Result ID"
+// @Success      200  {object}  utils.APIResponse{data=models.OCRResultResponse}
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /ocr/{id}/result [get]
 func (h *OCRHandler) GetOCRResult(c *gin.Context) {
 	ocrIDStr := c.Param("id")
 	ocrID, err := primitive.ObjectIDFromHex(ocrIDStr)
@@ -107,7 +141,20 @@ func (h *OCRHandler) GetOCRResult(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "OCR result retrieved", toOCRResponse(result))
 }
 
-// ConfirmOCR confirms parsed OCR results and creates a bill
+// ConfirmOCR godoc
+// @Summary      Confirm OCR scan and create bill
+// @Description  Confirms parsed OCR results, optionally edits items, and creates a bill from the scan
+// @Tags         OCR
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string                   true  "OCR Result ID"
+// @Param        request  body      models.ConfirmOCRRequest true  "Confirmed items and bill details"
+// @Success      201      {object}  utils.APIResponse
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /ocr/{id}/confirm [post]
 func (h *OCRHandler) ConfirmOCR(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -143,7 +190,17 @@ func (h *OCRHandler) ConfirmOCR(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusCreated, "Bill created from OCR scan", bill)
 }
 
-// GetPendingScans returns pending OCR scans for the current user
+// GetPendingScans godoc
+// @Summary      Get pending OCR scans
+// @Description  Returns all pending (unconfirmed) OCR scans for the authenticated user
+// @Tags         OCR
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse{data=[]models.OCRResultResponse}
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /ocr/pending [get]
 func (h *OCRHandler) GetPendingScans(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {

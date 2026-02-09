@@ -22,6 +22,7 @@ import ScanReceiptScreen from '../screens/ocr/ScanReceiptScreen';
 import ReviewOCRScreen from '../screens/ocr/ReviewOCRScreen';
 import PaymentScreen from '../screens/payment/PaymentScreen';
 import ActivityScreen from '../screens/activity/ActivityScreen';
+import StatisticsScreen from '../screens/stats/StatisticsScreen';
 
 // Types
 export type RootStackParamList = {
@@ -42,6 +43,7 @@ export type RootStackParamList = {
     groupName: string;
   };
   Activity: {groupId?: string; groupName?: string};
+  Statistics: {groupId: string; groupName: string};
 };
 
 export type MainTabParamList = {
@@ -158,6 +160,13 @@ export default function AppNavigator() {
                 title: route.params.groupName
                   ? `📋 ${route.params.groupName}`
                   : '📋 Hoạt Động',
+              })}
+            />
+            <Stack.Screen
+              name="Statistics"
+              component={StatisticsScreen}
+              options={({route}) => ({
+                title: `📊 ${route.params.groupName}`,
               })}
             />
           </>

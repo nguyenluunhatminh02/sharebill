@@ -17,8 +17,19 @@ func NewGroupHandler(groupService *services.GroupService) *GroupHandler {
 	return &GroupHandler{groupService: groupService}
 }
 
-// CreateGroup creates a new group
-// POST /api/v1/groups
+// CreateGroup godoc
+// @Summary      Create a new group
+// @Description  Creates a new group with the authenticated user as creator and first member
+// @Tags         Groups
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.CreateGroupRequest  true  "Group creation data"
+// @Success      201      {object}  utils.APIResponse{data=models.GroupResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups [post]
 func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	var req models.CreateGroupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -39,8 +50,16 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusCreated, "Group created", resp)
 }
 
-// ListGroups lists all groups for the current user
-// GET /api/v1/groups
+// ListGroups godoc
+// @Summary      List user's groups
+// @Description  Returns all groups the authenticated user is a member of
+// @Tags         Groups
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse{data=[]models.GroupResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups [get]
 func (h *GroupHandler) ListGroups(c *gin.Context) {
 	firebaseUID, _ := c.Get("firebase_uid")
 	uid := firebaseUID.(string)
@@ -59,8 +78,17 @@ func (h *GroupHandler) ListGroups(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Groups retrieved", responses)
 }
 
-// GetGroup gets a specific group
-// GET /api/v1/groups/:id
+// GetGroup godoc
+// @Summary      Get group details
+// @Description  Returns detailed information about a specific group including member details
+// @Tags         Groups
+// @Produce      json
+// @Param        id   path      string  true  "Group ID"
+// @Success      200  {object}  utils.APIResponse{data=models.GroupResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id} [get]
 func (h *GroupHandler) GetGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	firebaseUID, _ := c.Get("firebase_uid")
@@ -76,8 +104,20 @@ func (h *GroupHandler) GetGroup(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Group retrieved", resp)
 }
 
-// UpdateGroup updates a group
-// PUT /api/v1/groups/:id
+// UpdateGroup godoc
+// @Summary      Update a group
+// @Description  Updates group name, description, or currency. Only the group creator can update.
+// @Tags         Groups
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string                     true  "Group ID"
+// @Param        request  body      models.UpdateGroupRequest  true  "Group update data"
+// @Success      200      {object}  utils.APIResponse{data=models.GroupResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id} [put]
 func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 	var req models.UpdateGroupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -98,8 +138,17 @@ func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Group updated", group.ToResponse())
 }
 
-// DeleteGroup deletes a group
-// DELETE /api/v1/groups/:id
+// DeleteGroup godoc
+// @Summary      Delete a group
+// @Description  Deletes a group. Only the group creator can delete.
+// @Tags         Groups
+// @Produce      json
+// @Param        id   path      string  true  "Group ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id} [delete]
 func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	firebaseUID, _ := c.Get("firebase_uid")
@@ -113,8 +162,20 @@ func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Group deleted", nil)
 }
 
-// AddMember adds a member to a group
-// POST /api/v1/groups/:id/members
+// AddMember godoc
+// @Summary      Add member to group
+// @Description  Adds a user to a group by user ID
+// @Tags         Groups
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string                    true  "Group ID"
+// @Param        request  body      models.AddMemberRequest   true  "Member data"
+// @Success      200      {object}  utils.APIResponse
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/members [post]
 func (h *GroupHandler) AddMember(c *gin.Context) {
 	var req models.AddMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -134,8 +195,18 @@ func (h *GroupHandler) AddMember(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Member added", nil)
 }
 
-// RemoveMember removes a member from a group
-// DELETE /api/v1/groups/:id/members/:userId
+// RemoveMember godoc
+// @Summary      Remove member from group
+// @Description  Removes a user from a group. Only creator or the member themselves can remove.
+// @Tags         Groups
+// @Produce      json
+// @Param        id      path      string  true  "Group ID"
+// @Param        userId  path      string  true  "User ID to remove"
+// @Success      200     {object}  utils.APIResponse
+// @Failure      401     {object}  utils.APIResponse
+// @Failure      500     {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/members/{userId} [delete]
 func (h *GroupHandler) RemoveMember(c *gin.Context) {
 	groupID := c.Param("id")
 	memberUserID := c.Param("userId")
@@ -150,8 +221,19 @@ func (h *GroupHandler) RemoveMember(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Member removed", nil)
 }
 
-// JoinGroup joins a group using an invite code
-// POST /api/v1/groups/join
+// JoinGroup godoc
+// @Summary      Join group via invite code
+// @Description  Joins a group using the group's invite code
+// @Tags         Groups
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.JoinGroupRequest  true  "Invite code"
+// @Success      200      {object}  utils.APIResponse{data=models.GroupResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/join [post]
 func (h *GroupHandler) JoinGroup(c *gin.Context) {
 	var req models.JoinGroupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

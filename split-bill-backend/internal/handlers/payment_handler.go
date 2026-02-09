@@ -22,8 +22,17 @@ func NewPaymentHandler(userRepo *repository.UserRepository) *PaymentHandler {
 	}
 }
 
-// GenerateDeeplink generates banking app deeplinks for payment
-// POST /api/v1/payment/deeplink
+// GenerateDeeplink godoc
+// @Summary      Generate payment deeplinks
+// @Description  Generates banking app deeplinks (Momo, ZaloPay, VNPay, etc.) and VietQR URL for payment
+// @Tags         Payment
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.PaymentDeeplinkRequest  true  "Payment details"
+// @Success      200      {object}  utils.APIResponse{data=models.PaymentDeeplinkResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /payment/deeplink [post]
 func (h *PaymentHandler) GenerateDeeplink(c *gin.Context) {
 	var req models.PaymentDeeplinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -104,8 +113,17 @@ func (h *PaymentHandler) GenerateDeeplink(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Payment deeplinks generated", response)
 }
 
-// GenerateVietQR generates a VietQR code image URL
-// POST /api/v1/payment/vietqr
+// GenerateVietQR godoc
+// @Summary      Generate VietQR code
+// @Description  Generates a VietQR code image URL for bank transfer payment
+// @Tags         Payment
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.VietQRRequest  true  "QR code details"
+// @Success      200      {object}  utils.APIResponse
+// @Failure      400      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /payment/vietqr [post]
 func (h *PaymentHandler) GenerateVietQR(c *gin.Context) {
 	var req models.VietQRRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -143,8 +161,17 @@ func (h *PaymentHandler) GenerateVietQR(c *gin.Context) {
 	})
 }
 
-// GetPaymentInfo gets payment info for a user (bank accounts)
-// GET /api/v1/payment/user/:userId
+// GetUserPaymentInfo godoc
+// @Summary      Get user payment info
+// @Description  Returns payment information (bank accounts, preferred payment method) for a user
+// @Tags         Payment
+// @Produce      json
+// @Param        userId  path      string  true  "User ID"
+// @Success      200     {object}  utils.APIResponse
+// @Failure      400     {object}  utils.APIResponse
+// @Failure      404     {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /payment/user/{userId} [get]
 func (h *PaymentHandler) GetUserPaymentInfo(c *gin.Context) {
 	userIDStr := c.Param("userId")
 	userID, err := primitive.ObjectIDFromHex(userIDStr)
@@ -167,8 +194,14 @@ func (h *PaymentHandler) GetUserPaymentInfo(c *gin.Context) {
 	})
 }
 
-// GetSupportedBanks returns the list of supported Vietnamese banks
-// GET /api/v1/payment/banks
+// GetSupportedBanks godoc
+// @Summary      Get supported banks
+// @Description  Returns the list of supported Vietnamese banks with IDs, names, codes, logos, and colors
+// @Tags         Payment
+// @Produce      json
+// @Success      200 {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /payment/banks [get]
 func (h *PaymentHandler) GetSupportedBanks(c *gin.Context) {
 	banks := []gin.H{
 		{"id": "VCB", "name": "Vietcombank", "code": "970436", "short_name": "VCB", "logo": "https://img.vietqr.io/img/VCB.png", "color": "#00573F"},

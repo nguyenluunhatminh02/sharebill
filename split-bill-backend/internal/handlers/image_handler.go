@@ -29,7 +29,18 @@ func NewImageHandler(uploadDir string, baseURL string) *ImageHandler {
 	}
 }
 
-// UploadImage handles multipart form image upload
+// UploadImage godoc
+// @Summary      Upload image via multipart form
+// @Description  Uploads an image file (JPEG, PNG, WebP) with max 10MB size limit
+// @Tags         Upload
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        image  formData  file  true  "Image file to upload"
+// @Success      200    {object}  utils.APIResponse
+// @Failure      400    {object}  utils.APIResponse
+// @Failure      500    {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /upload/image [post]
 func (h *ImageHandler) UploadImage(c *gin.Context) {
 	file, header, err := c.Request.FormFile("image")
 	if err != nil {
@@ -87,7 +98,18 @@ func (h *ImageHandler) UploadImage(c *gin.Context) {
 	})
 }
 
-// UploadBase64Image handles base64-encoded image upload
+// UploadBase64Image godoc
+// @Summary      Upload image via base64
+// @Description  Uploads a base64-encoded image (supports data URI format) with max 10MB size limit
+// @Tags         Upload
+// @Accept       json
+// @Produce      json
+// @Param        request  body      object  true  "Base64 image data"
+// @Success      200      {object}  utils.APIResponse
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /upload/image-base64 [post]
 func (h *ImageHandler) UploadBase64Image(c *gin.Context) {
 	var req struct {
 		Image    string `json:"image" binding:"required"`

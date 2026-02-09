@@ -22,6 +22,9 @@ import {
   VietQRResponse,
   BankInfo,
   UserPaymentInfo,
+  GroupStats,
+  UserOverallStats,
+  CategoryInfo,
 } from '../types';
 
 // ===== Auth API =====
@@ -153,4 +156,27 @@ export const activityAPI = {
     api.get<APIResponse<Activity[]>>(
       `/activities/me${limit ? `?limit=${limit}` : ''}`,
     ),
+};
+
+// ===== Stats API (Phase 5) =====
+export const statsAPI = {
+  getGroupStats: (groupId: string) =>
+    api.get<APIResponse<GroupStats>>(`/groups/${groupId}/stats`),
+
+  getGroupCategoryStats: (groupId: string) =>
+    api.get<APIResponse<{categories: any[]; monthly_trend: any[]; total_spent: number}>>(
+      `/groups/${groupId}/stats/categories`,
+    ),
+
+  getUserStats: () =>
+    api.get<APIResponse<UserOverallStats>>('/stats/me'),
+
+  exportGroupSummary: (groupId: string, format?: string) =>
+    api.get<any>(
+      `/groups/${groupId}/export${format ? `?format=${format}` : ''}`,
+      { responseType: format === 'text' ? ('text' as any) : 'json' },
+    ),
+
+  getCategories: () =>
+    api.get<APIResponse<CategoryInfo[]>>('/categories'),
 };

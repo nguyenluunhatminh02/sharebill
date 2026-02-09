@@ -79,6 +79,7 @@ func (s *BillService) CreateBill(ctx context.Context, groupID string, firebaseUI
 		GroupID:         groupObjID,
 		Title:           req.Title,
 		Description:     req.Description,
+		Category:        req.Category,
 		ReceiptImageURL: req.ReceiptImageURL,
 		TotalAmount:     req.TotalAmount,
 		Currency:        req.Currency,

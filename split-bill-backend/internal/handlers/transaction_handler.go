@@ -22,8 +22,19 @@ func NewTransactionHandler(transactionRepo *repository.TransactionRepository, us
 	}
 }
 
-// CreateTransaction records a payment
-// POST /api/v1/transactions
+// CreateTransaction godoc
+// @Summary      Record a payment transaction
+// @Description  Creates a new settlement transaction between two users in a group
+// @Tags         Transactions
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.CreateTransactionRequest  true  "Transaction details"
+// @Success      201      {object}  utils.APIResponse{data=models.TransactionResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /transactions [post]
 func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 	var req models.CreateTransactionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,8 +92,21 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusCreated, "Transaction recorded", tx.ToResponse())
 }
 
-// ConfirmTransaction confirms a received payment
-// PUT /api/v1/transactions/:id/confirm
+// ConfirmTransaction godoc
+// @Summary      Confirm a transaction
+// @Description  Confirms a received payment. Only the recipient can confirm.
+// @Tags         Transactions
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Transaction ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      403  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /transactions/{id}/confirm [put]
 func (h *TransactionHandler) ConfirmTransaction(c *gin.Context) {
 	txID := c.Param("id")
 
@@ -121,8 +145,16 @@ func (h *TransactionHandler) ConfirmTransaction(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Transaction confirmed", nil)
 }
 
-// GetUserDebts gets all debts for the current user across all groups
-// GET /api/v1/users/me/debts
+// GetUserDebts godoc
+// @Summary      Get current user's debts
+// @Description  Returns all transactions (debts) for the authenticated user across all groups
+// @Tags         Users
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse{data=[]models.TransactionResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /users/me/debts [get]
 func (h *TransactionHandler) GetUserDebts(c *gin.Context) {
 	firebaseUID, _ := c.Get("firebase_uid")
 	uid := firebaseUID.(string)

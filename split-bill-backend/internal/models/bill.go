@@ -57,6 +57,7 @@ type Bill struct {
 	GroupID         primitive.ObjectID `bson:"group_id" json:"group_id"`
 	Title           string             `bson:"title" json:"title"`
 	Description     string             `bson:"description" json:"description"`
+	Category        string             `bson:"category" json:"category"`
 	ReceiptImageURL string             `bson:"receipt_image_url" json:"receipt_image_url"`
 	TotalAmount     float64            `bson:"total_amount" json:"total_amount"`
 	Currency        string             `bson:"currency" json:"currency"`
@@ -74,6 +75,7 @@ type Bill struct {
 type CreateBillRequest struct {
 	Title           string              `json:"title" binding:"required,min=2,max=200"`
 	Description     string              `json:"description" binding:"max=500"`
+	Category        string              `json:"category"`
 	ReceiptImageURL string              `json:"receipt_image_url"`
 	TotalAmount     float64             `json:"total_amount" binding:"required,gt=0"`
 	Currency        string              `json:"currency" binding:"required"`
@@ -97,6 +99,7 @@ type CreateBillItemReq struct {
 type UpdateBillRequest struct {
 	Title        string       `json:"title" binding:"omitempty,min=2,max=200"`
 	Description  string       `json:"description" binding:"max=500"`
+	Category     string       `json:"category"`
 	TotalAmount  *float64     `json:"total_amount" binding:"omitempty,gt=0"`
 	ExtraCharges ExtraCharges `json:"extra_charges"`
 	Status       BillStatus   `json:"status"`
@@ -108,6 +111,7 @@ type BillResponse struct {
 	GroupID         string              `json:"group_id"`
 	Title           string              `json:"title"`
 	Description     string              `json:"description"`
+	Category        string              `json:"category"`
 	ReceiptImageURL string              `json:"receipt_image_url"`
 	TotalAmount     float64             `json:"total_amount"`
 	Currency        string              `json:"currency"`
@@ -172,6 +176,7 @@ func (b *Bill) ToResponse() BillResponse {
 		GroupID:         b.GroupID.Hex(),
 		Title:           b.Title,
 		Description:     b.Description,
+		Category:        b.Category,
 		ReceiptImageURL: b.ReceiptImageURL,
 		TotalAmount:     b.TotalAmount,
 		Currency:        b.Currency,

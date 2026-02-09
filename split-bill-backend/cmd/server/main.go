@@ -1,12 +1,34 @@
+// @title          Split Bill API
+// @version        4.0.0
+// @description    API server for Split Bill application - manage groups, bills, transactions, OCR receipt scanning, and payments
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name  Split Bill Support
+// @contact.email support@splitbill.app
+
+// @license.name Apache 2.0
+// @license.url  http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host     localhost:8080
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in                         header
+// @name                       Authorization
+// @description                Firebase Bearer token. Format: "Bearer {token}"
+
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/splitbill/backend/internal/config"
@@ -17,6 +39,9 @@ import (
 	"github.com/splitbill/backend/internal/services"
 	"github.com/splitbill/backend/pkg/visionapi"
 	"go.uber.org/zap"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -33,6 +58,9 @@ func main() {
 
 	redisClient := database.NewRedisClient(&cfg.Redis)
 	defer redisClient.Close()
+
+	// Create MongoDB indexes for performance
+	database.EnsureIndexes(mongoDB)
 
 	// Initialize Vision API client
 	visionClient, err := visionapi.NewClient(
@@ -63,6 +91,7 @@ func main() {
 	ocrService := services.NewOCRService(ocrRepo, billRepo, groupRepo, visionClient, logger)
 	notifService := services.NewNotificationService(userRepo, logger)
 	activityService := services.NewActivityService(activityRepo, userRepo, groupRepo, logger)
+	statsService := services.NewStatsService(billRepo, transactionRepo, groupRepo, userRepo)
 
 	// Log notification service status
 	_ = notifService // Will be used when FCM is configured
@@ -75,6 +104,7 @@ func main() {
 	ocrHandler := handlers.NewOCRHandler(ocrService)
 	paymentHandler := handlers.NewPaymentHandler(userRepo)
 	activityHandler := handlers.NewActivityHandler(activityService, userRepo)
+	statsHandler := handlers.NewStatsHandler(statsService, userRepo)
 
 	// Image upload handler
 	uploadDir := filepath.Join(".", "uploads")
@@ -86,10 +116,13 @@ func main() {
 
 	// Setup Gin router
 	gin.SetMode(cfg.Server.Mode)
-	router := gin.Default()
+	router := gin.New()
 
 	// Global middleware
+	router.Use(middleware.RecoveryWithLogger(logger))
+	router.Use(middleware.RequestLogger(logger))
 	router.Use(middleware.CORS())
+	router.Use(middleware.RateLimitMiddleware(100)) // 100 requests/second per IP
 
 	// Serve uploaded images statically
 	router.Static("/uploads", uploadDir)
@@ -99,9 +132,12 @@ func main() {
 		c.JSON(200, gin.H{
 			"status":  "ok",
 			"service": "split-bill-api",
-			"version": "3.0.0",
+			"version": "4.0.0",
 		})
 	})
+
+	// Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API v1 routes
 	v1 := router.Group("/api/v1")
@@ -138,6 +174,11 @@ func main() {
 
 		// Group activities (Phase 4)
 		groups.GET("/:id/activities", activityHandler.GetGroupActivities)
+
+		// Group stats & export (Phase 5)
+		groups.GET("/:id/stats", statsHandler.GetGroupStats)
+		groups.GET("/:id/stats/categories", statsHandler.GetGroupCategoryStats)
+		groups.GET("/:id/export", statsHandler.ExportGroupSummary)
 	}
 
 	// Bill routes (direct access)
@@ -164,9 +205,10 @@ func main() {
 		users.GET("/me/debts", transactionHandler.GetUserDebts)
 	}
 
-	// OCR routes (Phase 2)
+	// OCR routes (Phase 2) - with strict rate limit for expensive operations
 	ocr := v1.Group("/ocr")
 	ocr.Use(authMiddleware.Authenticate())
+	ocr.Use(middleware.RateLimitByUser(30)) // 30 OCR scans per minute per user
 	{
 		ocr.POST("/scan", ocrHandler.ScanReceipt)
 		ocr.POST("/scan-base64", ocrHandler.ScanReceiptBase64)
@@ -178,6 +220,7 @@ func main() {
 	// Image upload routes (Phase 2)
 	upload := v1.Group("/upload")
 	upload.Use(authMiddleware.Authenticate())
+	upload.Use(middleware.RateLimitByUser(60)) // 60 uploads per minute per user
 	{
 		upload.POST("/image", imageHandler.UploadImage)
 		upload.POST("/image-base64", imageHandler.UploadBase64Image)
@@ -200,22 +243,56 @@ func main() {
 		activities.GET("/me", activityHandler.GetUserActivities)
 	}
 
-	// Graceful shutdown
+	// Stats routes (Phase 5)
+	stats := v1.Group("/stats")
+	stats.Use(authMiddleware.Authenticate())
+	{
+		stats.GET("/me", statsHandler.GetUserStats)
+	}
+
+	// Categories route (Phase 5)
+	v1.GET("/categories", statsHandler.GetCategoryList)
+
+	// Create HTTP server with proper timeouts
+	srv := &http.Server{
+		Addr:         cfg.Server.Port,
+		Handler:      router,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	// Start server in goroutine
 	go func() {
-		if err := router.Run(cfg.Server.Port); err != nil {
+		log.Printf("🚀 Split Bill API server starting on %s", cfg.Server.Port)
+		log.Printf("📚 Swagger UI: http://localhost%s/swagger/index.html", cfg.Server.Port)
+		log.Printf("📷 OCR endpoint: POST /api/v1/ocr/scan")
+		log.Printf("🖼️  Upload endpoint: POST /api/v1/upload/image")
+		log.Printf("💰 Payment endpoint: POST /api/v1/payment/deeplink")
+		log.Printf("📋 Activity endpoint: GET /api/v1/activities/me")
+		log.Printf("📊 Stats endpoint: GET /api/v1/stats/me")
+		log.Printf("📁 Categories endpoint: GET /api/v1/categories")
+
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
-
-	log.Printf("🚀 Split Bill API server starting on %s", cfg.Server.Port)
-	log.Printf("📷 OCR endpoint: POST /api/v1/ocr/scan")
-	log.Printf("🖼️  Upload endpoint: POST /api/v1/upload/image")
-	log.Printf("💰 Payment endpoint: POST /api/v1/payment/deeplink")
-	log.Printf("📋 Activity endpoint: GET /api/v1/activities/me")
 
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+
+	log.Println("⏳ Shutting down server gracefully...")
+
+	// Create shutdown context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Attempt graceful shutdown
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Printf("⚠️  Server forced to shutdown: %v", err)
+	}
+
+	log.Println("✅ Server exited gracefully")
 }

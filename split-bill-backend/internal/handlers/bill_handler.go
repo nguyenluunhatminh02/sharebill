@@ -21,8 +21,20 @@ func NewBillHandler(billService *services.BillService, debtService *services.Deb
 	}
 }
 
-// CreateBill creates a new bill in a group
-// POST /api/v1/groups/:id/bills
+// CreateBill godoc
+// @Summary      Create a new bill
+// @Description  Creates a new bill in a group with split information
+// @Tags         Bills
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string                     true  "Group ID"
+// @Param        request  body      models.CreateBillRequest   true  "Bill creation data"
+// @Success      201      {object}  utils.APIResponse{data=models.BillResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/bills [post]
 func (h *BillHandler) CreateBill(c *gin.Context) {
 	var req models.CreateBillRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -43,8 +55,17 @@ func (h *BillHandler) CreateBill(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusCreated, "Bill created", bill.ToResponse())
 }
 
-// ListBills lists all bills in a group
-// GET /api/v1/groups/:id/bills
+// ListBills godoc
+// @Summary      List group bills
+// @Description  Returns all bills in a specific group
+// @Tags         Bills
+// @Produce      json
+// @Param        id   path      string  true  "Group ID"
+// @Success      200  {object}  utils.APIResponse{data=[]models.BillResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/bills [get]
 func (h *BillHandler) ListBills(c *gin.Context) {
 	groupID := c.Param("id")
 
@@ -62,8 +83,17 @@ func (h *BillHandler) ListBills(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Bills retrieved", responses)
 }
 
-// GetBill gets a specific bill
-// GET /api/v1/bills/:id
+// GetBill godoc
+// @Summary      Get bill details
+// @Description  Returns detailed information about a specific bill
+// @Tags         Bills
+// @Produce      json
+// @Param        id   path      string  true  "Bill ID"
+// @Success      200  {object}  utils.APIResponse{data=models.BillResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /bills/{id} [get]
 func (h *BillHandler) GetBill(c *gin.Context) {
 	billID := c.Param("id")
 
@@ -76,8 +106,20 @@ func (h *BillHandler) GetBill(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Bill retrieved", bill.ToResponse())
 }
 
-// UpdateBill updates a bill
-// PUT /api/v1/bills/:id
+// UpdateBill godoc
+// @Summary      Update a bill
+// @Description  Updates bill title, amount, splits, or category
+// @Tags         Bills
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string                     true  "Bill ID"
+// @Param        request  body      models.UpdateBillRequest   true  "Bill update data"
+// @Success      200      {object}  utils.APIResponse{data=models.BillResponse}
+// @Failure      400      {object}  utils.APIResponse
+// @Failure      401      {object}  utils.APIResponse
+// @Failure      500      {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /bills/{id} [put]
 func (h *BillHandler) UpdateBill(c *gin.Context) {
 	var req models.UpdateBillRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -96,8 +138,17 @@ func (h *BillHandler) UpdateBill(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Bill updated", bill.ToResponse())
 }
 
-// DeleteBill deletes a bill
-// DELETE /api/v1/bills/:id
+// DeleteBill godoc
+// @Summary      Delete a bill
+// @Description  Soft-deletes a bill (marks as deleted)
+// @Tags         Bills
+// @Produce      json
+// @Param        id   path      string  true  "Bill ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /bills/{id} [delete]
 func (h *BillHandler) DeleteBill(c *gin.Context) {
 	billID := c.Param("id")
 
@@ -109,8 +160,17 @@ func (h *BillHandler) DeleteBill(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Bill deleted", nil)
 }
 
-// GetGroupBalances gets all balances in a group
-// GET /api/v1/groups/:id/balances
+// GetGroupBalances godoc
+// @Summary      Get group balances
+// @Description  Returns the balance for each member in the group (positive = owed, negative = owes)
+// @Tags         Balances
+// @Produce      json
+// @Param        id   path      string  true  "Group ID"
+// @Success      200  {object}  utils.APIResponse{data=[]models.BalanceResponse}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/balances [get]
 func (h *BillHandler) GetGroupBalances(c *gin.Context) {
 	groupID := c.Param("id")
 
@@ -123,8 +183,17 @@ func (h *BillHandler) GetGroupBalances(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Balances retrieved", balances)
 }
 
-// GetSettlements gets optimal settlement suggestions
-// GET /api/v1/groups/:id/settlements
+// GetSettlements godoc
+// @Summary      Get settlement suggestions
+// @Description  Returns optimized settlement suggestions to minimize the number of transactions
+// @Tags         Balances
+// @Produce      json
+// @Param        id   path      string  true  "Group ID"
+// @Success      200  {object}  utils.APIResponse{data=[]models.Settlement}
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/settlements [get]
 func (h *BillHandler) GetSettlements(c *gin.Context) {
 	groupID := c.Param("id")
 

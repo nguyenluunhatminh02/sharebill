@@ -23,8 +23,18 @@ func NewActivityHandler(activityService *services.ActivityService, userRepo *rep
 	}
 }
 
-// GetGroupActivities returns activities for a specific group
-// GET /api/v1/groups/:id/activities
+// GetGroupActivities godoc
+// @Summary      Get group activities
+// @Description  Returns the activity feed for a specific group with optional limit
+// @Tags         Activities
+// @Produce      json
+// @Param        id     path      string  true   "Group ID"
+// @Param        limit  query     int     false  "Max number of activities (default 20)"
+// @Success      200    {object}  utils.APIResponse{data=[]models.ActivityResponse}
+// @Failure      400    {object}  utils.APIResponse
+// @Failure      500    {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /groups/{id}/activities [get]
 func (h *ActivityHandler) GetGroupActivities(c *gin.Context) {
 	groupID := c.Param("id")
 	if _, err := primitive.ObjectIDFromHex(groupID); err != nil {
@@ -47,8 +57,17 @@ func (h *ActivityHandler) GetGroupActivities(c *gin.Context) {
 	utils.RespondSuccess(c, http.StatusOK, "Group activities", activities)
 }
 
-// GetUserActivities returns activities across all user's groups
-// GET /api/v1/activities/me
+// GetUserActivities godoc
+// @Summary      Get current user's activities
+// @Description  Returns activities across all groups the authenticated user belongs to
+// @Tags         Activities
+// @Produce      json
+// @Param        limit  query     int  false  "Max number of activities (default 30)"
+// @Success      200    {object}  utils.APIResponse{data=[]models.ActivityResponse}
+// @Failure      401    {object}  utils.APIResponse
+// @Failure      500    {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /activities/me [get]
 func (h *ActivityHandler) GetUserActivities(c *gin.Context) {
 	firebaseUID, _ := c.Get("firebase_uid")
 	uid := firebaseUID.(string)
